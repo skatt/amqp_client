@@ -29,7 +29,7 @@
 
 -include("amqp_client.hrl").
 
--behaviour(gen_server2).
+-behaviour(gen_server_rabbit).
 
 -export([start_link/2, call_consumer/2, call_consumer/3]).
 -export([behaviour_info/1]).
@@ -47,7 +47,7 @@
 %% Denotes a successful or an error return from a consumer module call.
 
 start_link(ConsumerModule, ExtraParams) ->
-    gen_server2:start_link(?MODULE, [ConsumerModule, ExtraParams], []).
+    gen_server_rabbit:start_link(?MODULE, [ConsumerModule, ExtraParams], []).
 
 %% @spec (Consumer, Msg) -> ok
 %% where
@@ -57,7 +57,7 @@ start_link(ConsumerModule, ExtraParams) ->
 %% @doc This function is used to perform arbitrary calls into the
 %% consumer module.
 call_consumer(Pid, Msg) ->
-    gen_server2:call(Pid, {consumer_call, Msg}, infinity).
+    gen_server_rabbit:call(Pid, {consumer_call, Msg}, infinity).
 
 %% @spec (Consumer, Method, Args) -> ok
 %% where
@@ -68,7 +68,7 @@ call_consumer(Pid, Msg) ->
 %% @doc This function is used by amqp_channel to forward received
 %% methods and deliveries to the consumer module.
 call_consumer(Pid, Method, Args) ->
-    gen_server2:call(Pid, {consumer_call, Method, Args}, infinity).
+    gen_server_rabbit:call(Pid, {consumer_call, Method, Args}, infinity).
 
 %%---------------------------------------------------------------------------
 %% Behaviour
@@ -163,7 +163,7 @@ behaviour_info(callbacks) ->
      %% amqp_channel:call_consumer/2 will return. If the callback
      %% returns {noreply, _}, then the caller to
      %% amqp_channel:call_consumer/2 and the channel remain blocked
-     %% until gen_server2:reply/2 is used with the provided From as
+     %% until gen_server_rabbit:reply/2 is used with the provided From as
      %% the first argument.
      {handle_call, 3},
 
@@ -180,7 +180,7 @@ behaviour_info(_Other) ->
     undefined.
 
 %%---------------------------------------------------------------------------
-%% gen_server2 callbacks
+%% gen_server_rabbit callbacks
 %%---------------------------------------------------------------------------
 
 init([ConsumerModule, ExtraParams]) ->
